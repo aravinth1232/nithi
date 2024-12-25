@@ -1,25 +1,61 @@
 import { Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { url } from '../../config';
 
 const Login = () => {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [passwordvisible, setPasswordVisible] = useState(false);
+  const navigate = useNavigate();
 
 
 
   const handleLogin = async (e) => {
     e.preventDefault();
+  
+    const formData = {
+      name,
+      password,
+    };
+  
+    // console.log(formData); // Log form data for debugging purposes
+  
+    try {
+      const response = await fetch(`${url}/login.php`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+        credentials: "include", // Send cookies along with request
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const result = await response.json();
+  
+      if (result.status === "success") {
+        alert(result.message);
+        
 
-    const formData ={
-      Name,
-      password
+
+        // Store session data in localStorage after successful login
+        localStorage.setItem("id", result.data.id); // User ID
+      localStorage.setItem("name", result.data.name); // Username
+      localStorage.setItem("role", result.data.role); // User role
+
+        // Redirect to another page (like dashboard) after successful login
+        navigate("/admin/dashboard");
+      } else {
+        alert(result.message); // Show error message if login fails
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+      alert("An error occurred. Please try again.");
     }
-
-    console.log(formData);
-    
   };
 
   return (

@@ -38,7 +38,7 @@ const Navbar = () => {
       <Store />
       <h1 className='capitalize text-2xl font-primary font-medium text-gray-500'> Nithi textile</h1>
     </div>
-  `<div className='flex flex-row items-center gap-3'>
+  <div className='flex flex-row items-center gap-3'>
     <Menu />
     {/* <DarkMode /> */}
     </div>

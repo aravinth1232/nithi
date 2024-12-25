@@ -5,7 +5,7 @@ const Layout = ({children}) => {
   return (
     
     <>
-    <div className='bg-gradient'>
+    <div className=' bg-gradient'>
     <Navbar />
     <main>{children}</main>
     </div>

@@ -1,10 +1,14 @@
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import './App.css'
 import Login from "./Auth/Login"
 import Signup from "./Auth/Signup"
 import Home from "./pages/Home"
 import Layout from './components/Layout'
+import Dashboard from "./pages/Dashboard"
+import DashboardLayout from './components/DashboardLayout'
+import AdminDashboard from './pages/AdminDashboard'
+import Sidebar from './components/Sidebar'
+import Profile from './pages/Profile'
 
 function App() {
 
@@ -22,7 +26,31 @@ function App() {
       path : "/login",
       element : <Layout> <Login /></Layout>
     },
-   
+    {
+      path: "/dashboard",
+      element : <Dashboard />
+    },
+       // Admin Dashboard Routes
+       {
+        path: "/admin/dashboard",
+        element: <Sidebar />,
+        children: [
+          {
+            index: true, // Default route
+            element: <AdminDashboard />,
+          },
+          // {
+          //   path: "users",
+          //   element:"">,
+          // },
+          // {
+          //   path: "reports",
+          //   element: "" ,
+          // },
+        ],
+      },
+  
+    
   ])
 
 

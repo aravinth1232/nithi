@@ -1,10 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { url } from '../../config';
+
 
 
 
 const App = () => {
+
+  const navigate = useNavigate();
+
+
+
   const [step, setStep] = useState(1);
   const [employeeId,setEmployeeId] = useState("");
   const [name,setName] = useState("");
@@ -16,13 +23,27 @@ const App = () => {
     const [qualification,setQualification] = useState("");
     const [phone,setPhone] = useState("");
     const [address,setAddress] = useState("");
+    const [role,setRole] = useState("");
+    const [aadharFile, setAadharFile] = useState(null);
+    const [panFile, setPanFile] = useState(null);
+    const [bankPassbookFile, setBankPassbookFile] = useState(null);
+    // const [photo, setPhoto] = useState(null);
 
 
-    const [photo, setPhoto] = useState(null);
+    const handleFileChange = (e, setter) => {
+      const file = e.target.files[0];
+      if (file) {
+        setter(file);
+      }
+    };
+
+  
+
 
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [isCameraOn, setIsCameraOn] = useState(false);
+    const [capturedPhoto,setCapturedPhoto] = useState(null);
 
     useEffect(() => {
       let stream;
@@ -61,9 +82,16 @@ const App = () => {
   
         // Convert canvas to image URL
         const imageData = canvas.toDataURL("image/png");
-        setPhoto(imageData);
+        setCapturedPhoto(imageData);
       }
     };
+
+
+
+
+    
+  
+    
 
   const handleNext = () => {
     if (step < 4) setStep(step + 1);
@@ -73,11 +101,65 @@ const App = () => {
     if (step > 1) setStep(step - 1);
   };
 
-  const handleSubmit = (e) => {
+
+  // if (capturedPhoto){ 
+  //  console.log(capturedPhoto) 
+      
+  // }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-   
-   
+
+    // Create FormData object
+    const formData = new FormData();
+
+    // Append form fields
+    formData.append("employeeId", employeeId);
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("designation", designation);
+    formData.append("role", role);
+    formData.append("qualification", qualification);
+    formData.append("phone", phone);
+    formData.append("address", address);
+
+    // Append photo and files
+    if (capturedPhoto){ 
+    
+      formData.append("photo", capturedPhoto)
+      setIsCameraOn(false);
+      
+    }
+
+    if (aadharFile) formData.append("aadhar", aadharFile);
+    if (panFile) formData.append("pan", panFile);
+    if (bankPassbookFile) formData.append("bank_passbook", bankPassbookFile);
+
+    // Send formData to backend API
+    try {
+      const response = await fetch(`${url}/submit.php`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        alert(result.message);
+        navigate("/login");
+
+      } else {
+        alert(result.message);
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred. Please try again.");
+    }
   };
+  
+
+
+
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto items-center justify-start pt-10">
@@ -95,7 +177,7 @@ const App = () => {
                 htmlFor="id">Employee Id</label>
                 <input
                    className='
-                   bg-primary-100
+                   bg-primary-100 uppercase
                    focus:border-2 focus:border-primary-500
                    border-2 px-2 py-2 focus:outline-none rounded-xl'
                   placeholder='#123ABc'
@@ -210,6 +292,27 @@ const App = () => {
 
                 <div className="mb-4">
                   <label 
+                   className='font-semibold '>Role</label>
+                  <select
+                    name="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className='w-full
+                    bg-primary-100
+                    focus:border-2 focus:border-primary-500
+                    border-2 px-2 py-2 focus:outline-none rounded-xl'
+                    required
+                  >
+                    <option value="" disabled>
+                      Select your role
+                    </option>
+                    <option value="employee">Employee</option>
+                    {/* <option value="admin">Admin</option> */}
+                  </select>
+                </div>
+
+                <div className="mb-4">
+                  <label 
                    className='font-semibold '>Qualification</label>
                   <select
                     name="qualification"
@@ -281,7 +384,7 @@ const App = () => {
                   <input
                     type="file"
                     name="aadhar"
-                    
+                    onChange={(e) => handleFileChange(e, setAadharFile)}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-gray-700 hover:file:bg-gray-100"
                     accept=".pdf,.doc,.docx"
                     required
@@ -295,7 +398,7 @@ const App = () => {
                   <input
                     type="file"
                     name="pan"
-                    
+                    onChange={(e) => handleFileChange(e, setPanFile)}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-gray-700 hover:file:bg-gray-100"
                     accept=".pdf,.doc,.docx"
                     required
@@ -311,7 +414,7 @@ const App = () => {
                   <input
                     type="file"
                     name="bank_passbook"
-                    
+                    onChange={(e) => handleFileChange(e, setBankPassbookFile)}
                     className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-gray-700 hover:file:bg-gray-100"
                     accept=".pdf,.doc,.docx"
                     required
@@ -327,8 +430,10 @@ const App = () => {
 
               step === 4  && (
                 
-                <div >
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Step 4: Capture Your Live Photo</h2>
+            <div>
+
+
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Step 4: Capture Your Live Photo</h2>
               
               {!isCameraOn && (
         <button
@@ -357,6 +462,7 @@ const App = () => {
       {/* Capture Button */}
       {isCameraOn && (
         <button
+        type="button"
           onClick={capturePhoto}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -365,26 +471,29 @@ const App = () => {
       )}
 
       {/* Display Captured Photo */}
-      {photo && (
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Captured Photo:</h2>
+      {capturedPhoto && (
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold mb-2">Captured Photo:</h2>
           <img
-            src={photo}
+            src={capturedPhoto}
             alt="Captured"
-            className="w-full max-w-md rounded-lg shadow-md"
+            className="w-full max-w-md rounded shadow mb-4"
           />
+          <button
+            onClick={() => {
+              setCapturedPhoto(null);
+              setIsCameraOn(false);
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Retake Photo
+          </button>
         </div>
       )}
               
               
               
-              </div>
-    
-    
-            
-            
-            
-            
+              </div>     
             
            
            
@@ -407,7 +516,7 @@ const App = () => {
               Previous
             </button>
 
-            {step < 4 ? (
+            {step < 4 && (
               <button
                 type="button"
                 onClick={handleNext}
@@ -415,9 +524,10 @@ const App = () => {
               >
                 Next
               </button>
-            ) : (
-              
-              
+            )} 
+            
+             {  step === 4 &&   (
+                            
              <button
              type="submit"
              className="relative inline-block px-8 py-2 font-bold text-white bg-primary-500 rounded-[40px]

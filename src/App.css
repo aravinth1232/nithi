@@ -12,3 +12,8 @@
     background: rgb(220,220,220);
     background: radial-gradient(circle, rgba(220,220,220,1) 27%, rgba(193,193,193,1) 35%);
 }
+
+.bg-gradient3{
+    background: rgb(182,227,236);
+    background: linear-gradient(90deg, rgb(178, 218, 226) 39%, rgb(143, 201, 212) 92%);
+}
